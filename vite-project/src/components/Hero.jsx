@@ -79,6 +79,7 @@ const Hero = () => {
 
   const [activeChapter, setActiveChapter] = useState(0)
   const [videoReady, setVideoReady]       = useState(false)
+  const [videoFailed, setVideoFailed]     = useState(false)
 
   // ─── Chapter transition ───────────────────────────────────────────────────
   const prevChapter = useRef(-1)
@@ -124,8 +125,22 @@ const Hero = () => {
     if (!video) return
 
     const onReady = () => setTimeout(() => setVideoReady(true), 1000)
-        video.addEventListener('loadedmetadata', onReady)
+    const onError = () => {
+      setVideoFailed(true)
+      setTimeout(() => setVideoReady(true), 500)
+    }
+
+    video.addEventListener('loadedmetadata', onReady)
+    video.addEventListener('error', onError)
     if (video.readyState >= 1) onReady()
+
+    // Fallback: if video hasn't loaded in 3s, proceed anyway
+    const fallbackTimer = setTimeout(() => {
+      if (!video.duration) {
+        setVideoFailed(true)
+        setVideoReady(true)
+      }
+    }, 3000)
 
     // Initial chapter text
     const ch0 = CHAPTERS[0]
@@ -134,7 +149,11 @@ const Hero = () => {
     if (bodyRef.current)     bodyRef.current.textContent     = ch0.body
     if (sigilRef.current)    sigilRef.current.textContent    = ch0.sigil
 
-    return () => video.removeEventListener('loadedmetadata', onReady)
+    return () => {
+      video.removeEventListener('loadedmetadata', onReady)
+      video.removeEventListener('error', onError)
+      clearTimeout(fallbackTimer)
+    }
   }, [])
 
   // ─── GSAP ScrollTrigger ───────────────────────────────────────────────────
@@ -142,7 +161,7 @@ const Hero = () => {
     if (!videoReady) return
 
     const video    = videoRef.current
-    const duration = video.duration || 1
+    const duration = (!videoFailed && video.duration) ? video.duration : 1
 
     // Scroll distance = 5× viewport so we have plenty of room to scrub
     const scrollHeight = window.innerHeight * 6
@@ -165,10 +184,12 @@ const Hero = () => {
         end:     `+=${scrollHeight}`,
         scrub:   1.2,
         onUpdate: (self) => {
-          // video scrub
-          const t = self.progress * duration
-          if (Math.abs(video.currentTime - t) > 0.04) {
-            video.currentTime = t
+          // video scrub (only when video is available)
+          if (!videoFailed && video.duration) {
+            const t = self.progress * duration
+            if (Math.abs(video.currentTime - t) > 0.04) {
+              video.currentTime = t
+            }
           }
 
           // progress bar
@@ -226,7 +247,7 @@ const Hero = () => {
       ScrollTrigger.getAll().forEach(t => t.kill())
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videoReady])
+  }, [videoReady, videoFailed])
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
