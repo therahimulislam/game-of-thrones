@@ -1,3 +1,6 @@
+# Large media files — host externally (Cloudinary / S3 / GitHub Releases)
+public/video/
+
 # Logs
 logs
 *.log
