@@ -5,6 +5,102 @@ import './Hero.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// ─── Chapter colour palette ───────────────────────────────────────────────────
+const CHAPTER_COLORS = [
+  'rgba(25, 10, 55, 0.78)',   // midnight indigo  — The Ancient Chronicles
+  'rgba(8, 22, 48, 0.78)',    // icy steel blue   — House Stark
+  'rgba(4, 22, 12, 0.78)',    // dark emerald     — The Seven Kingdoms
+  'rgba(40, 18, 0, 0.78)',    // amber gold haze  — King's Landing
+  'rgba(10, 10, 18, 0.78)',   // cold iron        — A Thousand Blades
+  'rgba(52, 3, 3, 0.78)',     // deep crimson     — The Iron Throne
+]
+
+// ─── Cinematic ember background ──────────────────────────────────────────────
+const CinematicBackground = () => {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    let animId
+
+    const resize = () => {
+      canvas.width  = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    const makeParticle = () => ({
+      x:          Math.random() * canvas.width,
+      y:          canvas.height + 10,
+      size:       Math.random() * 1.8 + 0.4,
+      speedY:     -(Math.random() * 0.65 + 0.2),
+      speedX:     (Math.random() - 0.5) * 0.3,
+      opacity:    0,
+      maxOpacity: Math.random() * 0.5 + 0.12,
+      life:       1,
+      decay:      Math.random() * 0.0022 + 0.0007,
+      phase:      Math.random() * Math.PI * 2,
+    })
+
+    const particles = Array.from({ length: 70 }, () => {
+      const p = makeParticle()
+      p.y = Math.random() * canvas.height
+      return p
+    })
+
+    const tick = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const now = Date.now() * 0.0005
+
+      particles.forEach((p, i) => {
+        p.y      += p.speedY
+        p.x      += p.speedX + Math.sin(now + p.phase + i * 0.3) * 0.15
+        p.life   -= p.decay
+        p.opacity = Math.min(p.maxOpacity, p.opacity + 0.01)
+
+        if (p.life <= 0 || p.y < -20) Object.assign(p, makeParticle())
+
+        ctx.save()
+        ctx.globalAlpha = p.opacity * Math.max(0, p.life)
+        const r = p.size * 3.5
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r)
+        g.addColorStop(0,   '#f2d880')
+        g.addColorStop(0.35,'#c9a84c')
+        g.addColorStop(1,   'transparent')
+        ctx.fillStyle = g
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.restore()
+      })
+
+      animId = requestAnimationFrame(tick)
+    }
+
+    tick()
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener('resize', resize)
+    }
+  }, [])
+
+  return (
+    <>
+      <canvas ref={canvasRef} className="got-ember-canvas" />
+      <div className="got-fog-1" />
+      <div className="got-fog-2" />
+      <div className="got-light-rays">
+        <div className="got-ray got-ray-1" />
+        <div className="got-ray got-ray-2" />
+        <div className="got-ray got-ray-3" />
+      </div>
+    </>
+  )
+}
+
 // ─── Chapter data ────────────────────────────────────────────────────────────
 const CHAPTERS = [
   {
@@ -76,6 +172,7 @@ const Hero = () => {
   const vignetteRef   = useRef(null)
   const chapterLabelRef = useRef(null)
   const runeBarRef    = useRef(null)
+  const colorWashRef  = useRef(null)
 
   const [activeChapter, setActiveChapter] = useState(0)
   const [videoReady, setVideoReady]       = useState(false)
@@ -108,6 +205,15 @@ const Hero = () => {
       { y: 32, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.55, ease: 'power3.out', stagger: 0.07 }
     )
+
+    // chapter colour atmosphere
+    if (colorWashRef.current) {
+      gsap.to(colorWashRef.current, {
+        backgroundColor: CHAPTER_COLORS[idx],
+        duration: 1.4,
+        ease: 'power2.inOut',
+      })
+    }
 
     // chapter label
     if (chapterLabelRef.current) {
@@ -255,10 +361,22 @@ const Hero = () => {
 
       {/* ── Loading overlay ── */}
       <div className={`got-loading ${videoReady ? 'hidden' : ''}`}>
-        <div className="got-loading-logo">Game of Thrones</div>
-        <div className="got-loading-sub">The Chronicles of Westeros</div>
-        <div className="got-loading-bar-wrap">
-          <div className="got-loading-bar-fill" />
+        <div className="got-loading-inner">
+          <svg className="got-loading-sigil" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="36" stroke="#c9a84c" strokeWidth="0.5" strokeOpacity="0.3"/>
+            <circle cx="40" cy="40" r="28" stroke="#c9a84c" strokeWidth="0.5" strokeOpacity="0.2" strokeDasharray="3 5"/>
+            <path d="M40 8 L43 28 L40 32 L37 28 Z" fill="none" stroke="#c9a84c" strokeWidth="0.9" strokeOpacity="0.7"/>
+            <path d="M40 72 L43 52 L40 48 L37 52 Z" fill="none" stroke="#c9a84c" strokeWidth="0.9" strokeOpacity="0.7"/>
+            <path d="M8 40 L28 37 L32 40 L28 43 Z" fill="none" stroke="#c9a84c" strokeWidth="0.9" strokeOpacity="0.7"/>
+            <path d="M72 40 L52 37 L48 40 L52 43 Z" fill="none" stroke="#c9a84c" strokeWidth="0.9" strokeOpacity="0.7"/>
+            <circle cx="40" cy="40" r="4" fill="#c9a84c" fillOpacity="0.65"/>
+            <circle cx="40" cy="40" r="9" fill="none" stroke="#c9a84c" strokeWidth="0.5" strokeOpacity="0.35"/>
+          </svg>
+          <div className="got-loading-logo">Game of Thrones</div>
+          <div className="got-loading-sub">The Chronicles of Westeros</div>
+          <div className="got-loading-bar-wrap">
+            <div className="got-loading-bar-fill" />
+          </div>
         </div>
       </div>
 
@@ -270,6 +388,10 @@ const Hero = () => {
       >
         {/* ── Sticky viewport ── */}
         <div ref={stickyRef} className="got-sticky">
+
+          {/* Cinematic background (always shown; video overlays if available) */}
+          <div ref={colorWashRef} className="got-color-wash" />
+          <CinematicBackground />
 
           {/* Video */}
           <video
