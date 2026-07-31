@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { gsap } from 'gsap'
 import './Section1.css'
 
 const HOUSES = [
@@ -117,16 +118,30 @@ const HouseCard = ({ house, index }) => {
     return () => obs.disconnect()
   }, [index])
 
-  // Sigil tilt on hover
+  // Full card 3D tilt on mouse move
   const handleMouseMove = (e) => {
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width  - 0.5) * 14
-    const y = ((e.clientY - rect.top)  / rect.height - 0.5) * 14
+    const card = cardRef.current
+    const rect = card.getBoundingClientRect()
+    const cx = rect.left + rect.width  / 2
+    const cy = rect.top  + rect.height / 2
+    const rx =  ((e.clientY - cy) / (rect.height / 2)) * 7
+    const ry = -((e.clientX - cx) / (rect.width  / 2)) * 7
+    gsap.to(card, {
+      rotateX: rx, rotateY: ry,
+      transformPerspective: 900,
+      transformOrigin: 'center center',
+      ease: 'power2.out', duration: 0.35,
+    })
+    // Sigil follows more aggressively
     if (sigilRef.current) {
-      sigilRef.current.style.transform = `rotateY(${x}deg) rotateX(${-y}deg) scale(1.06)`
+      sigilRef.current.style.transform =
+        `translateX(-50%) rotateY(${ry * 2}deg) rotateX(${-rx * 2}deg) scale(1.1) translateZ(20px)`
     }
   }
   const handleMouseLeave = () => {
+    gsap.to(cardRef.current, {
+      rotateX: 0, rotateY: 0, duration: 0.8, ease: 'elastic.out(1, 0.45)',
+    })
     if (sigilRef.current) sigilRef.current.style.transform = ''
     setHovered(false)
   }
@@ -135,7 +150,12 @@ const HouseCard = ({ house, index }) => {
     <div
       ref={cardRef}
       className={`house-card house-card--${house.id}`}
-      style={{ '--accent': house.accent, '--border': house.borderColor, background: house.bg }}
+      data-house={house.id}
+      style={{
+        '--accent':  house.accent,
+        '--border':  house.borderColor,
+        background:  house.bg,
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}

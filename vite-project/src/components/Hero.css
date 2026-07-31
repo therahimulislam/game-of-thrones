@@ -245,10 +245,18 @@
   background: var(--gold-dim);
   transform-origin: bottom;
   opacity: 0;
+  /* Level 3: wave animation */
+  animation: rune-wave calc(0.8s + (var(--i, 0) % 9) * 0.12s) ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * 12ms);
 }
 
-.rune-tick:nth-child(3n) { height: 6px;  background: var(--gold); }
+.rune-tick:nth-child(3n) { height: 6px; background: var(--gold); }
 .rune-tick:nth-child(7n) { height: 4px; }
+
+@keyframes rune-wave {
+  from { transform: scaleY(0.15); opacity: 0.3; }
+  to   { transform: scaleY(1);    opacity: 0.9; }
+}
 
 /* ══════════════════════════════════════════════════════════
    DECORATIVE DIVIDER
@@ -322,13 +330,24 @@
   font-size: clamp(34px, 5.5vw, 74px);
   font-weight: 700;
   line-height: 1.05;
-  color: var(--parchment);
-  text-shadow:
-    0 2px 40px rgba(0, 0, 0, 0.95),
-    0 0 80px rgba(201, 168, 76, 0.1);
+  /* Gradient text shimmer */
+  background: linear-gradient(
+    135deg,
+    #f5e6c8 0%,
+    #e8c97a 25%,
+    #fff8e8 45%,
+    #c9a84c 65%,
+    #f5e6c8 80%,
+    #e8c97a 100%
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
   margin-bottom: 22px;
   letter-spacing: 0.02em;
-  animation: title-glow 5s ease-in-out infinite;
+  animation: hero-title-shimmer 6s linear infinite;
 }
 
 @keyframes title-glow {
@@ -767,4 +786,109 @@
   color: #5a5040;
   text-align: center;
   line-height: 1.9;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   LEVEL 3 — Hero Title Shimmer
+══════════════════════════════════════════════════════════ */
+@keyframes hero-title-shimmer {
+  0%   { background-position: 0%   center; }
+  100% { background-position: 300% center; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   LEVEL 3 — Chapter Flash Wipe Overlay
+══════════════════════════════════════════════════════════ */
+.got-chapter-flash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(201,168,76,0.04) 30%,
+    rgba(10,4,0,0.55) 50%,
+    rgba(201,168,76,0.04) 70%,
+    transparent 100%
+  );
+  z-index: 15;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.got-chapter-flash--active {
+  animation: chapter-flash-wipe 0.55s var(--ease-smooth, cubic-bezier(0.22,1,0.36,1)) forwards;
+}
+
+@keyframes chapter-flash-wipe {
+  0%   { opacity: 0;   transform: translateX(-100%); }
+  30%  { opacity: 1;   transform: translateX(-10%); }
+  70%  { opacity: 1;   transform: translateX(10%); }
+  100% { opacity: 0;   transform: translateX(100%); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   LEVEL 3 — Improved CTA Buttons
+══════════════════════════════════════════════════════════ */
+.got-cta-btn,
+.got-cta-ghost {
+  will-change: transform;
+  transform-origin: center center;
+}
+
+/* More premium shimmer on primary button */
+.got-cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(242,216,128,0.35) 45%,
+    transparent 55%
+  );
+  background-size: 300% 300%;
+  opacity: 0;
+  transition: opacity 0.4s;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.got-cta-btn:hover::before {
+  opacity: 1;
+  animation: btn-shimmer-lvl3 1.8s linear infinite;
+}
+
+@keyframes btn-shimmer-lvl3 {
+  0%   { background-position: 200% 0%; }
+  100% { background-position: -50% 0%; }
+}
+
+/* Ghost button — border draw on hover */
+.got-cta-ghost {
+  position: relative;
+}
+.got-cta-ghost::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(201,168,76,0.6);
+  border-radius: inherit;
+  transform: scale(1.08);
+  opacity: 0;
+  transition: transform 0.4s var(--ease-smooth, cubic-bezier(0.22,1,0.36,1)),
+              opacity  0.4s;
+}
+.got-cta-ghost:hover::after {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════
+   LEVEL 3 — Rune bar visible after load (override opacity:0)
+   The wave animation handles visibility
+══════════════════════════════════════════════════════════ */
+.got-rune-bar .rune-tick {
+  /* Wave animation plays immediately — skip GSAP opacity:0 init */
+  opacity: 1;
 }

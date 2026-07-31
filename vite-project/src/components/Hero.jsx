@@ -208,6 +208,27 @@ const lerp = (a, b, t) => a + (b - a) * t
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 const invlerp = (a, b, v) => clamp((v - a) / (b - a), 0, 1)
 
+// Text scramble effect — animates chars before revealing final text
+const scrambleText = (el, finalText) => {
+  if (!el) return
+  const glyphs = '⚔✦◈⬡ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let frame = 0
+  const totalFrames = Math.max(finalText.length * 3, 24)
+  const id = setInterval(() => {
+    el.textContent = finalText
+      .split('')
+      .map((ch, i) => {
+        if (ch === ' ') return ' '
+        return frame / totalFrames > i / finalText.length
+          ? ch
+          : glyphs[Math.floor(Math.random() * glyphs.length)]
+      })
+      .join('')
+    frame++
+    if (frame >= totalFrames) { el.textContent = finalText; clearInterval(id) }
+  }, 28)
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 const Hero = () => {
   const containerRef  = useRef(null)
@@ -248,10 +269,11 @@ const Hero = () => {
     })
     // update DOM mid-fade via callback
     .call(() => {
-      if (titleRef.current)    titleRef.current.textContent    = ch.title
       if (subtitleRef.current) subtitleRef.current.textContent = ch.subtitle
       if (bodyRef.current)     bodyRef.current.textContent     = ch.body
       if (sigilRef.current)    sigilRef.current.textContent    = ch.sigil
+      // Scramble title for dramatic reveal
+      scrambleText(titleRef.current, ch.title)
     })
     // fade in new text
     .fromTo(
@@ -341,7 +363,38 @@ const Hero = () => {
     return () => window.removeEventListener('mousemove', onMove)
   }, [])
 
-  // ─── Nav glassmorphism on scroll progress ────────────────────────────────
+  // ─── Chapter flash wipe on chapter change ────────────────────────────────
+  const flashRef = useRef(null)
+  useEffect(() => {
+    const flash = flashRef.current
+    if (!flash || activeChapter === 0) return
+    flash.classList.add('got-chapter-flash--active')
+    const t = setTimeout(() => flash.classList.remove('got-chapter-flash--active'), 600)
+    return () => clearTimeout(t)
+  }, [activeChapter])
+
+  // ─── Magnetic CTA buttons ─────────────────────────────────────────────────
+  useEffect(() => {
+    if (!videoReady) return
+    const sticky = stickyRef.current
+    if (!sticky) return
+    const btns = sticky.querySelectorAll('.got-cta-btn, .got-cta-ghost')
+    const cleanups = []
+    btns.forEach(btn => {
+      const onMove = (e) => {
+        const rect = btn.getBoundingClientRect()
+        const dx = (e.clientX - (rect.left + rect.width  / 2)) * 0.3
+        const dy = (e.clientY - (rect.top  + rect.height / 2)) * 0.3
+        gsap.to(btn, { x: dx, y: dy, duration: 0.4, ease: 'power2.out' })
+      }
+      const onLeave = () => gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1,0.4)' })
+      btn.addEventListener('mousemove', onMove)
+      btn.addEventListener('mouseleave', onLeave)
+      cleanups.push(() => { btn.removeEventListener('mousemove', onMove); btn.removeEventListener('mouseleave', onLeave) })
+    })
+    return () => cleanups.forEach(fn => fn())
+  }, [videoReady])
+
   useEffect(() => {
     if (!videoReady) return
     const trigger = ScrollTrigger.getAll().find(t => t.vars?.pin === stickyRef.current)
@@ -484,6 +537,8 @@ const Hero = () => {
           {/* Cinematic background (always shown; video overlays if available) */}
           <div ref={colorWashRef} className="got-color-wash" />
           <CinematicBackground intensityRef={intensityRef} />
+          {/* Chapter flash wipe overlay */}
+          <div ref={flashRef} className="got-chapter-flash" aria-hidden="true" />
 
           {/* Video */}
           <video
@@ -543,10 +598,10 @@ const Hero = () => {
             <p className="got-mobile-menu__motto">When you play the game of thrones —<br />you win, or you die.</p>
           </div>
 
-          {/* Rune bar */}
+          {/* Rune bar — animated wave */}
           <div ref={runeBarRef} className="got-rune-bar">
             {Array.from({ length: 80 }).map((_, i) => (
-              <div key={i} className="rune-tick" />
+              <div key={i} className="rune-tick" style={{ '--i': i }} />
             ))}
           </div>
 

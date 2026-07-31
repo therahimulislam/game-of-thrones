@@ -1,5 +1,6 @@
 import './App.css'
 import Cursor         from './components/Cursor'
+import ScrollProgress from './components/ScrollProgress'
 import Hero           from './components/Hero'
 import Section1       from './components/Section1'
 import Characters     from './components/Characters'
@@ -12,14 +13,15 @@ import SectionDivider from './components/SectionDivider'
 function App() {
   return (
     <>
-      {/* Custom magnetic cursor */}
+      {/* Fixed overlays (above everything) */}
       <Cursor />
+      <ScrollProgress />
 
       <main id="main-content">
         {/* 1. Hero — cinematic scroll-driven opener with snow + embers */}
         <Hero />
 
-        {/* 2. Houses — animated card grid */}
+        {/* 2. Houses — 3D tilt cards with per-house atmospheres */}
         <SectionDivider glyph="✦ THE GREAT HOUSES ✦" />
         <Section1 />
 
