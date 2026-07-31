@@ -800,32 +800,28 @@
 /* ══════════════════════════════════════════════════════════
    LEVEL 3 — Chapter Flash Wipe Overlay
 ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   LEVEL 4 — Valyrian Steel Sword Slice
+══════════════════════════════════════════════════════════ */
 .got-chapter-flash {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(201,168,76,0.04) 30%,
-    rgba(10,4,0,0.55) 50%,
-    rgba(201,168,76,0.04) 70%,
-    transparent 100%
-  );
+  inset: -20%;
+  background: #fff;
   z-index: 15;
   pointer-events: none;
   opacity: 0;
-  transform: translateX(-100%);
+  transform: rotate(15deg) scaleY(0);
 }
 
 .got-chapter-flash--active {
-  animation: chapter-flash-wipe 0.55s var(--ease-smooth, cubic-bezier(0.22,1,0.36,1)) forwards;
+  animation: sword-slice 0.6s cubic-bezier(0.85, 0, 0.15, 1) forwards;
 }
 
-@keyframes chapter-flash-wipe {
-  0%   { opacity: 0;   transform: translateX(-100%); }
-  30%  { opacity: 1;   transform: translateX(-10%); }
-  70%  { opacity: 1;   transform: translateX(10%); }
-  100% { opacity: 0;   transform: translateX(100%); }
+@keyframes sword-slice {
+  0%   { opacity: 0; transform: rotate(15deg) scaleY(0) translateY(-100px); box-shadow: 0 0 0 transparent; }
+  20%  { opacity: 1; transform: rotate(15deg) scaleY(0.005) translateY(0); box-shadow: 0 0 50px rgba(255,255,255,1); background: #fff; }
+  45%  { opacity: 1; transform: rotate(15deg) scaleY(1.2); box-shadow: 0 0 100px rgba(0,0,0,1); background: #020101; }
+  100% { opacity: 0; transform: rotate(15deg) scaleY(1.2); background: #020101; }
 }
 
 /* ══════════════════════════════════════════════════════════

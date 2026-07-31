@@ -15,6 +15,16 @@ const Quotes = () => {
   const panelsRef   = useRef([])
   const [active, setActive] = useState(0)
 
+  // Level 4: Torchlight effect mouse tracking
+  const handleMouseMove = (e) => {
+    if (!sectionRef.current) return
+    const rect = sectionRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    sectionRef.current.style.setProperty('--mouse-x', `${x}px`)
+    sectionRef.current.style.setProperty('--mouse-y', `${y}px`)
+  }
+
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
@@ -73,7 +83,13 @@ const Quotes = () => {
   }, [])
 
   return (
-    <section ref={sectionRef} className="quotes-section" id="lore" aria-label="Famous quotes from Westeros">
+    <section 
+      ref={sectionRef} 
+      className="quotes-section" 
+      id="lore" 
+      aria-label="Famous quotes from Westeros"
+      onMouseMove={handleMouseMove}
+    >
       {QUOTES.map((q, i) => (
         <div
           key={i}

@@ -1,0 +1,21 @@
+/* ══════════════════════════════════════════════════════════
+   LEVEL 4 — GLOBAL SCROLL VELOCITY SKEW
+══════════════════════════════════════════════════════════ */
+body {
+  --skew: 0deg;
+}
+
+#main-content {
+  /* Apply the skew across the entire page content container */
+  transform-origin: center center;
+  transform: skewY(var(--skew));
+  will-change: transform;
+  /* Add perspective for a subtle 3D warp */
+  perspective: 1000px;
+}
+
+/* Dampen skew for horizontal scrolling sections to prevent breaking */
+.characters-section {
+  transform: skewY(calc(var(--skew) * -0.5));
+  will-change: transform;
+}

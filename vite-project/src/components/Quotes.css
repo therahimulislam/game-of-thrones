@@ -36,6 +36,10 @@
   max-width: 900px;
   padding: 0 var(--sp-8, 64px);
   gap: var(--sp-6, 32px);
+  
+  /* Level 4: Torchlight mask */
+  -webkit-mask-image: radial-gradient(circle 450px at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black 20%, transparent 100%);
+  mask-image: radial-gradient(circle 450px at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black 20%, transparent 100%);
 }
 
 /* ── Ornament ── */
@@ -186,7 +190,11 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .q-inner { padding: 0 var(--sp-5, 24px); }
+  .q-inner { 
+    padding: 0 var(--sp-5, 24px); 
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
   .q-text { font-size: clamp(18px, 5vw, 28px); }
   .q-progress { display: none; }
 }

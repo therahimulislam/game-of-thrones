@@ -20,6 +20,26 @@ const lenis = new Lenis({
 // Connect Lenis to GSAP ScrollTrigger
 lenis.on('scroll', ScrollTrigger.update)
 
+// ── Level 4: Scroll Velocity Distortion ──────────────────────────────────────
+let proxy = { skew: 0 },
+    skewSetter = gsap.quickSetter(document.body, '--skew', 'deg'),
+    clamp = gsap.utils.clamp(-8, 8) // max skew 8 degrees
+
+lenis.on('scroll', (e) => {
+  const velocity = e.velocity * 0.4
+  
+  if (Math.abs(velocity) > Math.abs(proxy.skew)) {
+    proxy.skew = velocity
+    gsap.to(proxy, {
+      skew: 0,
+      duration: 0.8,
+      ease: 'power3',
+      overwrite: true,
+      onUpdate: () => skewSetter(clamp(proxy.skew))
+    })
+  }
+})
+
 gsap.ticker.add((time) => lenis.raf(time * 1000))
 gsap.ticker.lagSmoothing(0)
 
