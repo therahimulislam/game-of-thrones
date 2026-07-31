@@ -7,16 +7,26 @@ gsap.registerPlugin(ScrollTrigger)
 
 // ─── Chapter colour palette ───────────────────────────────────────────────────
 const CHAPTER_COLORS = [
-  'rgba(25, 10, 55, 0.78)',   // midnight indigo  — The Ancient Chronicles
-  'rgba(8, 22, 48, 0.78)',    // icy steel blue   — House Stark
-  'rgba(4, 22, 12, 0.78)',    // dark emerald     — The Seven Kingdoms
-  'rgba(40, 18, 0, 0.78)',    // amber gold haze  — King's Landing
-  'rgba(10, 10, 18, 0.78)',   // cold iron        — A Thousand Blades
-  'rgba(52, 3, 3, 0.78)',     // deep crimson     — The Iron Throne
+  'rgba(25, 10, 55, 0.78)',
+  'rgba(8, 22, 48, 0.78)',
+  'rgba(4, 22, 12, 0.78)',
+  'rgba(40, 18, 0, 0.78)',
+  'rgba(10, 10, 18, 0.78)',
+  'rgba(52, 3, 3, 0.78)',
 ]
 
-// ─── Cinematic ember background ──────────────────────────────────────────────
-const CinematicBackground = () => {
+// ─── Chapter snow / ember intensities ────────────────────────────────────────
+const CHAPTER_EFFECTS = [
+  { snow: 0.35, ember: 0.15 }, // Prologue — light snow, faint embers
+  { snow: 1.00, ember: 0.00 }, // Winterfell — full blizzard, no embers
+  { snow: 0.20, ember: 0.35 }, // Seven Kingdoms — mixed
+  { snow: 0.00, ember: 0.90 }, // King's Landing — intense embers
+  { snow: 0.10, ember: 0.60 }, // A Thousand Blades — forge fire
+  { snow: 0.00, ember: 1.00 }, // Iron Throne — maximum embers
+]
+
+// ─── Cinematic background: snow + embers ─────────────────────────────────────
+const CinematicBackground = ({ intensityRef: iRef }) => {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -32,7 +42,8 @@ const CinematicBackground = () => {
     resize()
     window.addEventListener('resize', resize)
 
-    const makeParticle = () => ({
+    // ── Ember factory ──
+    const makeEmber = () => ({
       x:          Math.random() * canvas.width,
       y:          canvas.height + 10,
       size:       Math.random() * 1.8 + 0.4,
@@ -44,35 +55,74 @@ const CinematicBackground = () => {
       decay:      Math.random() * 0.0022 + 0.0007,
       phase:      Math.random() * Math.PI * 2,
     })
-
-    const particles = Array.from({ length: 70 }, () => {
-      const p = makeParticle()
+    const embers = Array.from({ length: 80 }, () => {
+      const p = makeEmber()
       p.y = Math.random() * canvas.height
       return p
     })
 
+    // ── Snow factory ──
+    const makeSnow = () => ({
+      x:      Math.random() * canvas.width,
+      y:      -10,
+      r:      Math.random() * 2.8 + 0.6,
+      speedY: Math.random() * 1.1 + 0.25,
+      speedX: (Math.random() - 0.5) * 0.5,
+      op:     Math.random() * 0.55 + 0.3,
+      phase:  Math.random() * Math.PI * 2,
+      wobble: Math.random() * 0.7 + 0.2,
+    })
+    const snowflakes = Array.from({ length: 140 }, () => {
+      const s = makeSnow()
+      s.y = Math.random() * canvas.height
+      return s
+    })
+
     const tick = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      const now = Date.now() * 0.0005
+      const now       = Date.now() * 0.0005
+      const emberInt  = iRef?.current?.ember ?? 0.35
+      const snowInt   = iRef?.current?.snow  ?? 0.35
 
-      particles.forEach((p, i) => {
+      // ── Embers (rise up) ──
+      const activeEmbers = Math.floor(embers.length * emberInt)
+      embers.slice(0, activeEmbers).forEach((p, i) => {
         p.y      += p.speedY
         p.x      += p.speedX + Math.sin(now + p.phase + i * 0.3) * 0.15
         p.life   -= p.decay
         p.opacity = Math.min(p.maxOpacity, p.opacity + 0.01)
-
-        if (p.life <= 0 || p.y < -20) Object.assign(p, makeParticle())
-
+        if (p.life <= 0 || p.y < -20) Object.assign(p, makeEmber())
         ctx.save()
         ctx.globalAlpha = p.opacity * Math.max(0, p.life)
         const r = p.size * 3.5
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r)
-        g.addColorStop(0,   '#f2d880')
-        g.addColorStop(0.35,'#c9a84c')
-        g.addColorStop(1,   'transparent')
-        ctx.fillStyle = g
+        const eg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r)
+        eg.addColorStop(0,    '#f2d880')
+        eg.addColorStop(0.35, '#c9a84c')
+        eg.addColorStop(1,    'transparent')
+        ctx.fillStyle = eg
         ctx.beginPath()
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.restore()
+      })
+
+      // ── Snow (fall down) ──
+      const activeSnow = Math.floor(snowflakes.length * snowInt)
+      snowflakes.slice(0, activeSnow).forEach((s) => {
+        s.y += s.speedY
+        s.x += s.speedX + Math.sin(now * 0.55 + s.phase) * s.wobble
+        if (s.y > canvas.height + 12) { s.y = -10; s.x = Math.random() * canvas.width }
+        if (s.x < -12) s.x = canvas.width + 12
+        if (s.x > canvas.width + 12) s.x = -12
+        ctx.save()
+        ctx.globalAlpha = s.op * snowInt
+        const sg = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 2.2)
+        sg.addColorStop(0,   'rgba(220, 238, 255, 1)')
+        sg.addColorStop(0.5, 'rgba(190, 218, 255, 0.55)')
+        sg.addColorStop(1,   'transparent')
+        ctx.fillStyle = sg
+        ctx.beginPath()
+        ctx.arc(s.x, s.y, s.r * 2.2, 0, Math.PI * 2)
         ctx.fill()
         ctx.restore()
       })
@@ -85,7 +135,7 @@ const CinematicBackground = () => {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', resize)
     }
-  }, [])
+  }, [iRef])
 
   return (
     <>
@@ -173,10 +223,14 @@ const Hero = () => {
   const chapterLabelRef = useRef(null)
   const runeBarRef    = useRef(null)
   const colorWashRef  = useRef(null)
+  const navRef        = useRef(null)
+  const intensityRef  = useRef({ snow: 0.35, ember: 0.15 })
 
   const [activeChapter, setActiveChapter] = useState(0)
   const [videoReady, setVideoReady]       = useState(false)
   const [videoFailed, setVideoFailed]     = useState(false)
+  const [menuOpen, setMenuOpen]           = useState(false)
+  const [navScrolled, setNavScrolled]     = useState(false)
 
   // ─── Chapter transition ───────────────────────────────────────────────────
   const prevChapter = useRef(-1)
@@ -214,6 +268,9 @@ const Hero = () => {
         ease: 'power2.inOut',
       })
     }
+
+    // chapter snow / ember intensity
+    intensityRef.current = CHAPTER_EFFECTS[idx] ?? CHAPTER_EFFECTS[0]
 
     // chapter label
     if (chapterLabelRef.current) {
@@ -261,6 +318,41 @@ const Hero = () => {
       clearTimeout(fallbackTimer)
     }
   }, [])
+
+  // ─── Mouse parallax ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const sticky = stickyRef.current
+    if (!sticky) return
+
+    const fog1    = sticky.querySelector('.got-fog-1')
+    const fog2    = sticky.querySelector('.got-fog-2')
+    const content = sticky.querySelector('.got-content')
+    const corners = sticky.querySelectorAll('.got-corner')
+
+    const onMove = (e) => {
+      const cx = (e.clientX / window.innerWidth  - 0.5) * 2
+      const cy = (e.clientY / window.innerHeight - 0.5) * 2
+      if (fog1)    gsap.to(fog1,    { x: cx * 22, y: cy * 14, duration: 2.2, ease: 'power2.out' })
+      if (fog2)    gsap.to(fog2,    { x: cx * -16, y: cy * -10, duration: 2.8, ease: 'power2.out' })
+      if (content) gsap.to(content, { x: cx * -7, y: cy * -4, duration: 1.6, ease: 'power3.out' })
+      corners.forEach(el => gsap.to(el, { x: cx * 14, y: cy * 9, duration: 2, ease: 'power2.out' }))
+    }
+    window.addEventListener('mousemove', onMove)
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [])
+
+  // ─── Nav glassmorphism on scroll progress ────────────────────────────────
+  useEffect(() => {
+    if (!videoReady) return
+    const trigger = ScrollTrigger.getAll().find(t => t.vars?.pin === stickyRef.current)
+    if (!trigger) return
+    const unsub = ScrollTrigger.observe({
+      target: window,
+      type: 'scroll',
+      onChangeY: () => setNavScrolled(trigger.progress > 0.02),
+    })
+    return () => unsub?.kill()
+  }, [videoReady])
 
   // ─── GSAP ScrollTrigger ───────────────────────────────────────────────────
   useEffect(() => {
@@ -391,7 +483,7 @@ const Hero = () => {
 
           {/* Cinematic background (always shown; video overlays if available) */}
           <div ref={colorWashRef} className="got-color-wash" />
-          <CinematicBackground />
+          <CinematicBackground intensityRef={intensityRef} />
 
           {/* Video */}
           <video
@@ -420,14 +512,36 @@ const Hero = () => {
           ))}
 
           {/* Nav */}
-          <nav className="got-nav">
+          <nav ref={navRef} className={`got-nav ${navScrolled ? 'got-nav--scrolled' : ''}`}>
             <div className="got-nav-logo">Game of Thrones</div>
             <ul className="got-nav-links">
               {['The World','Characters','Houses','History'].map(l => (
                 <li key={l}><a href="#0">{l}</a></li>
               ))}
             </ul>
+            {/* Hamburger (mobile) */}
+            <button
+              className={`got-hamburger ${menuOpen ? 'got-hamburger--open' : ''}`}
+              onClick={() => setMenuOpen(o => !o)}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+            >
+              <span /><span /><span />
+            </button>
           </nav>
+
+          {/* Mobile overlay menu */}
+          <div className={`got-mobile-menu ${menuOpen ? 'got-mobile-menu--open' : ''}`} role="dialog" aria-modal="true" aria-label="Navigation">
+            <button className="got-mobile-menu__close" onClick={() => setMenuOpen(false)} aria-label="Close menu">&times;</button>
+            <ul className="got-mobile-menu__links">
+              {['The World','Characters','Houses','History','The Map'].map((l, i) => (
+                <li key={l} style={{ '--li': i }}>
+                  <a href="#0" onClick={() => setMenuOpen(false)}>{l}</a>
+                </li>
+              ))}
+            </ul>
+            <p className="got-mobile-menu__motto">When you play the game of thrones —<br />you win, or you die.</p>
+          </div>
 
           {/* Rune bar */}
           <div ref={runeBarRef} className="got-rune-bar">

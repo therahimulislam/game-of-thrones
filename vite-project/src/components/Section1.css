@@ -1,5 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&display=swap');
 
+/* ─── Section divider ─────────────────────────────────────────────────────── */
+.section-divider {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(to bottom, #040302, #030201);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  overflow: hidden;
+}
+.section-divider::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 40% 100% at 50% 50%, rgba(201,168,76,0.03), transparent);
+}
+.section-divider__line {
+  flex: 1;
+  max-width: 300px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201,168,76,0.3));
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 1.2s cubic-bezier(0.22,1,0.36,1);
+}
+.section-divider__line:last-child {
+  background: linear-gradient(to left, transparent, rgba(201,168,76,0.3));
+  transform-origin: left center;
+}
+.section-divider.in-view .section-divider__line { transform: scaleX(1); }
+.section-divider__glyph {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.55em;
+  color: rgba(201,168,76,0.35);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 /* ─── Section wrapper ────────────────────────────────────────────────────── */
 .section1 {
   position: relative;
