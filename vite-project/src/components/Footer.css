@@ -1,0 +1,193 @@
+/* ══════════════════════════════════════════════════════════
+   FOOTER — Epic Site Footer
+══════════════════════════════════════════════════════════ */
+
+.site-footer {
+  position: relative;
+  width: 100%;
+  background: #020101;
+  padding: var(--sp-10, 128px) var(--sp-8, 64px) var(--sp-7, 48px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-7, 48px);
+  overflow: hidden;
+}
+
+/* Background texture */
+.site-footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,168,76,0.04), transparent),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: auto, 180px;
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* ── Top separator ── */
+.footer-sep-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--g-gold-h, linear-gradient(to right, transparent, #c9a84c, transparent));
+  box-shadow: 0 0 20px rgba(201,168,76,0.3);
+}
+
+/* ── Iron Throne sigil ── */
+.footer-sigil {
+  color: var(--c-gold-300, #c9a84c);
+}
+
+.footer-sigil-svg {
+  width: 100px;
+  height: 100px;
+  animation: footer-sigil-rotate 30s linear infinite;
+  filter: drop-shadow(0 0 20px rgba(201,168,76,0.2));
+}
+
+@keyframes footer-sigil-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Brand ── */
+.footer-brand {
+  text-align: center;
+}
+
+.footer-title {
+  font-family: var(--f-display, 'Cinzel Decorative', serif);
+  font-size: clamp(22px, 3vw, 36px);
+  color: var(--c-gold-300, #c9a84c);
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 40px rgba(201,168,76,0.3);
+  margin-bottom: var(--sp-2, 8px);
+}
+
+.footer-tagline {
+  font-family: var(--f-heading, 'Cinzel', serif);
+  font-size: var(--t-xs, 9px);
+  letter-spacing: var(--ls-widest, 0.6em);
+  color: var(--c-gold-500, #7a6130);
+  text-transform: uppercase;
+}
+
+/* ── House words ── */
+.footer-house-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-3, 12px) var(--sp-7, 48px);
+  max-width: 860px;
+}
+
+.footer-house-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2, 8px);
+}
+
+.footer-house-name {
+  font-family: var(--f-heading, 'Cinzel', serif);
+  font-size: var(--t-xs, 9px);
+  letter-spacing: 0.3em;
+  color: var(--c-gold-300, #c9a84c);
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.footer-house-separator {
+  color: var(--c-gold-500, #7a6130);
+}
+
+.footer-house-motto {
+  font-family: var(--f-body, 'IM Fell English', serif);
+  font-size: clamp(11px, 1vw, 13px);
+  font-style: italic;
+  color: var(--c-ash-dim, #5a5040);
+}
+
+/* ── Nav ── */
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-3, 12px) var(--sp-6, 32px);
+}
+
+.footer-nav-link {
+  font-family: var(--f-heading, 'Cinzel', serif);
+  font-size: var(--t-xs, 9px);
+  letter-spacing: var(--ls-wide, 0.25em);
+  color: var(--c-ash-dim, #5a5040);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  position: relative;
+}
+
+.footer-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--c-gold-300, #c9a84c);
+  transition: width 0.3s;
+}
+
+.footer-nav-link:hover { color: var(--c-gold-300, #c9a84c); }
+.footer-nav-link:hover::after { width: 100%; }
+
+/* ── Bottom engraving ── */
+.footer-engraving {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5, 24px);
+  max-width: 700px;
+  width: 100%;
+}
+
+.footer-orn-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201,168,76,0.2));
+}
+.footer-orn-line:last-child {
+  background: linear-gradient(to left, transparent, rgba(201,168,76,0.2));
+}
+
+.footer-motto-line {
+  font-family: var(--f-body, 'IM Fell English', serif);
+  font-size: clamp(11px, 1vw, 13px);
+  font-style: italic;
+  color: var(--c-ash-dim, #5a5040);
+  text-align: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Copyright ── */
+.footer-copy {
+  font-family: var(--f-heading, 'Cinzel', serif);
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  color: rgba(90,80,64,0.5);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .site-footer { padding: var(--sp-9, 96px) var(--sp-5, 24px) var(--sp-6, 32px); gap: var(--sp-6, 32px); }
+  .footer-motto-line { white-space: normal; }
+  .footer-engraving { flex-direction: column; gap: var(--sp-3, 12px); }
+  .footer-orn-line { width: 80px; height: 1px; flex: none; }
+  .footer-house-words { gap: var(--sp-2, 8px) var(--sp-5, 24px); }
+}

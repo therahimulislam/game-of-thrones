@@ -1,0 +1,93 @@
+/* Hide OS cursor everywhere */
+*, *::before, *::after { cursor: none !important; }
+
+/* ── Dot ── */
+.cursor-dot {
+  position: fixed;
+  top: -4px;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-gold-300, #c9a84c);
+  pointer-events: none;
+  z-index: var(--z-cursor, 9999);
+  will-change: transform;
+  transition: opacity 0.2s;
+  box-shadow: 0 0 10px rgba(201,168,76,0.6);
+}
+
+.cursor-dot--hidden { opacity: 0; }
+
+/* ── Ring ── */
+.cursor-ring {
+  position: fixed;
+  top: -20px;
+  left: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.5);
+  pointer-events: none;
+  z-index: var(--z-cursor, 9999);
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    width 0.35s var(--ease-bounce, cubic-bezier(0.34,1.56,0.64,1)),
+    height 0.35s var(--ease-bounce, cubic-bezier(0.34,1.56,0.64,1)),
+    border-color 0.3s,
+    background 0.3s,
+    top 0s,
+    left 0s;
+}
+
+/* Hover link state */
+.cursor-ring--hover {
+  width: 72px;
+  height: 72px;
+  top: -36px;
+  left: -36px;
+  border-color: var(--c-gold-300, #c9a84c);
+  background: rgba(201, 168, 76, 0.08);
+}
+
+/* Hover card state */
+.cursor-ring--card {
+  width: 64px;
+  height: 64px;
+  top: -32px;
+  left: -32px;
+  border-color: var(--c-gold-300, #c9a84c);
+  border-width: 2px;
+  background: rgba(201, 168, 76, 0.06);
+}
+
+/* Click state */
+.cursor-ring--click {
+  transform: scale(0.7) !important; /* overrides JS transform via additional scale */
+  border-color: var(--c-gold-200, #e8c97a);
+}
+
+/* ── Label inside ring ── */
+.cursor-label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  color: var(--c-gold-300, #c9a84c);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.25s;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cursor-label--visible { opacity: 1; }
+
+/* Disable on touch devices */
+@media (hover: none) {
+  .cursor-dot, .cursor-ring { display: none; }
+  *, *::before, *::after { cursor: auto !important; }
+}

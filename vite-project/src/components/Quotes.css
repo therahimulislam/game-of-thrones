@@ -1,0 +1,192 @@
+/* ══════════════════════════════════════════════════════════
+   QUOTES — Full-Screen Dramatic Quote Reveals
+══════════════════════════════════════════════════════════ */
+
+.quotes-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #020101;
+  overflow: hidden;
+}
+
+/* ── Quote panel ── */
+.q-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease-smooth);
+}
+
+.q-panel--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Inner content ── */
+.q-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 900px;
+  padding: 0 var(--sp-8, 64px);
+  gap: var(--sp-6, 32px);
+}
+
+/* ── Ornament ── */
+.q-ornament {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.q-ornament-line {
+  display: block;
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201,168,76,0.4));
+}
+.q-ornament-line:last-child {
+  background: linear-gradient(to left, transparent, rgba(201,168,76,0.4));
+}
+
+.q-glyph {
+  font-size: 14px;
+  color: var(--c-gold-300, #c9a84c);
+  filter: drop-shadow(0 0 12px rgba(201,168,76,0.8));
+  animation: q-glyph-spin 12s linear infinite;
+}
+
+@keyframes q-glyph-spin {
+  0%, 100% { transform: rotate(0deg); }
+  50%       { transform: rotate(180deg); }
+}
+
+/* ── Quote text ── */
+.q-text {
+  font-family: var(--f-body, 'IM Fell English', serif);
+  font-size: clamp(20px, 3.5vw, 48px);
+  font-style: italic;
+  color: var(--c-gold-100, #f5e6c8);
+  line-height: 1.5;
+  text-shadow: 0 4px 40px rgba(0,0,0,0.9), 0 0 80px rgba(201,168,76,0.06);
+  position: relative;
+}
+
+/* Quotation marks */
+.q-open-mark,
+.q-close-mark {
+  font-family: var(--f-display, 'Cinzel Decorative', serif);
+  font-style: normal;
+  color: rgba(201,168,76,0.3);
+  font-size: 1.4em;
+  vertical-align: -0.15em;
+}
+.q-open-mark  { margin-right: 4px; }
+.q-close-mark { margin-left: 4px; }
+
+/* ── Individual word (animated) ── */
+.q-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(40px);
+  will-change: transform, opacity;
+}
+
+/* ── Attribution ── */
+.q-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+  opacity: 0;
+}
+
+.q-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.q-divider-line {
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201,168,76,0.35));
+}
+.q-divider-line--right {
+  background: linear-gradient(to left, transparent, rgba(201,168,76,0.35));
+}
+
+.q-diamond {
+  width: 6px;
+  height: 6px;
+  background: var(--c-gold-300, #c9a84c);
+  transform: rotate(45deg);
+  display: block;
+  box-shadow: 0 0 10px rgba(201,168,76,0.6);
+}
+
+.q-author {
+  font-family: var(--f-display, 'Cinzel Decorative', serif);
+  font-size: clamp(12px, 1.2vw, 16px);
+  color: var(--c-gold-300, #c9a84c);
+  letter-spacing: var(--ls-wide, 0.25em);
+}
+
+.q-house {
+  font-family: var(--f-heading, 'Cinzel', serif);
+  font-size: var(--t-xs, 9px);
+  letter-spacing: var(--ls-widest, 0.55em);
+  color: var(--c-ash-dim, #5a5040);
+  text-transform: uppercase;
+}
+
+/* ── Ember glow at bottom ── */
+.q-ember-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: radial-gradient(ellipse 60% 100% at 50% 100%, rgba(201,168,76,0.04), transparent);
+  pointer-events: none;
+}
+
+/* ── Progress dots ── */
+.q-progress {
+  position: fixed;
+  bottom: 36px;
+  right: 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: var(--z-overlay, 20);
+  pointer-events: none;
+}
+
+.q-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.25);
+  transition: all 0.4s var(--ease-smooth);
+}
+
+.q-dot.active {
+  background: var(--c-gold-300, #c9a84c);
+  transform: scale(2);
+  box-shadow: 0 0 10px rgba(201,168,76,0.5);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .q-inner { padding: 0 var(--sp-5, 24px); }
+  .q-text { font-size: clamp(18px, 5vw, 28px); }
+  .q-progress { display: none; }
+}
